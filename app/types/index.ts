@@ -34,13 +34,22 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  shopName?: string;
-  customerName?: string;
-  items: OrderItem[] | number;
-  status: OrderStatus;
+  customerName: string;
+  items: OrderItem[];
+  status: 'pending' | 'inProgress' | 'completed' | 'cancelled';
   pickupTime: string;
   deliveryTime?: string;
-  totalAmount?: string;
+  totalAmount: number;
+  created_at?: {
+    $date: string;
+  };
+  pickup_address: {
+    street?: string;
+    landmark?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+  };
 }
 
 // API Response Types

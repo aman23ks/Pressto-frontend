@@ -9,15 +9,24 @@ const apiService = axios.create({
   }
 });
 
-// Add response interceptor for error handling
+// Request interceptor to add token
 apiService.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor for error handling
+apiService.interceptors.response.use(
   (response) => {
-    // Include headers in the response
-    return {
-      ...response,
-      data: response.data,
-      headers: response.headers
-    };
+    return response;
   },
   (error) => {
     if (error.response?.status === 401) {
@@ -27,6 +36,5 @@ apiService.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
 
 export { apiService };

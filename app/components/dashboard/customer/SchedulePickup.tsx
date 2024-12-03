@@ -130,7 +130,7 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
       const response = await OrderService.createOrder(orderPayload);
       toast.success('Order placed successfully!');
       sessionStorage.removeItem('currentOrder');
-      router.push('/orders');
+      router.push('/');
     } catch (error: any) {
       console.error('Failed to place order:', error);
       toast.error(error.response?.data?.error || 'Failed to place order');
