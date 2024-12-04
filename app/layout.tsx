@@ -4,7 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "IronEase",
+  title: "Pressto",
   description: "Professional Ironing Service Platform",
 };
 
