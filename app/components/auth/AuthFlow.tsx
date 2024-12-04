@@ -27,7 +27,7 @@ export const AuthFlow = () => {
         <div className="max-w-md w-full px-6 py-8 bg-white rounded-lg shadow-lg">
           <div className="text-center mb-8">
             <Store className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-            <h1 className="text-3xl font-extrabold text-gray-800">Welcome to IronEase</h1>
+            <h1 className="text-3xl font-extrabold text-gray-800">Welcome to Pressto</h1>
             <p className="text-gray-600 mt-2">Choose how you want to use the app</p>
           </div>
 
