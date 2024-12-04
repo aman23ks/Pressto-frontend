@@ -1,19 +1,33 @@
 'use client';
 
-import { useState } from 'react';
-import { Package, ArrowLeft, ChevronRight, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Package, Search } from 'lucide-react';
 import { StatusBadge } from '../../../common/StatusBadge';
 import { OrderStatus } from '@/app/types';
+import { apiService } from '@/app/services/api';
+import { toast } from 'react-hot-toast';
+
+interface OrderItem {
+  type: string;
+  count: number;
+}
 
 interface Order {
   id: string;
-  shopName?: string;
-  date: string;
-  items: number;
+  shopName: string;
+  items: OrderItem[];
   status: OrderStatus;
-  totalAmount: string;
-  pickupTime?: string;
-  deliveryTime?: string;
+  pickup_time: string;
+  delivery_time: string;
+  total_amount: number;
+  pickup_address?: {
+    street?: string;
+    landmark?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+  };
+  created_at: string;
 }
 
 interface OrdersProps {
@@ -23,52 +37,58 @@ interface OrdersProps {
 export const Orders: React.FC<OrdersProps> = ({ onNavigate }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'active' | 'completed'>('active');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const orders: Order[] = [
-    {
-      id: "ORD001",
-      shopName: "Premium Pressers",
-      date: "Today",
-      items: 5,
-      status: "inProgress",
-      totalAmount: "₹250",
-      pickupTime: "2:00 PM",
-      deliveryTime: "Tomorrow, 10:00 AM"
-    },
-    {
-      id: "ORD002",
-      shopName: "Swift Iron Services",
-      date: "Yesterday",
-      items: 3,
-      status: "pending",
-      totalAmount: "₹150",
-      pickupTime: "Tomorrow, 11:00 AM",
-      deliveryTime: "Tomorrow, 6:00 PM"
-    },
-    {
-      id: "ORD003",
-      date: "2 days ago",
-      items: 4,
-      status: "completed",
-      totalAmount: "₹200"
-    },
-    {
-      id: "ORD004",
-      date: "3 days ago",
-      items: 4,
-      status: "completed",
-      totalAmount: "₹200"
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      
+      // Log the current tab and endpoint
+      const orderType = activeTab === 'active' ? 'active' : 'history';
+      const endpoint = `/customer/orders?type=${orderType}`;
+      console.log('Fetching orders:', endpoint);
+      
+      const response = await apiService.get(endpoint);
+      console.log('Response data:', response.data);
+      
+      const formattedOrders = response.data.map((order: any) => ({
+        ...order,
+        pickup_time: order.pickup_time ? new Date(order.pickup_time).toLocaleString([], {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        }) : null,
+        delivery_time: order.delivery_time ? new Date(order.delivery_time).toLocaleString([], {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        }) : null,
+        created_at: order.created_at?.$date ? 
+          new Date(order.created_at.$date).toLocaleDateString() :
+          new Date(order.created_at).toLocaleDateString()
+      }));
+  
+      setOrders(formattedOrders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast.error('Failed to fetch orders');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+  
+  useEffect(() => {
+    fetchOrders();
+  }, [activeTab]);
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.shopName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         order.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTab = activeTab === 'active' ? 
-      ['pending', 'inProgress'].includes(order.status) : 
-      order.status === 'completed';
-    return matchesSearch && matchesTab;
-  });
+  const filteredOrders = orders.filter(order =>
+    order.shopName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getTotalItems = (items: OrderItem[]) => 
+    items.reduce((acc, item) => acc + item.count, 0);
 
   return (
     <div className="min-h-screen bg-white">
@@ -120,7 +140,11 @@ export const Orders: React.FC<OrdersProps> = ({ onNavigate }) => {
 
           {/* Orders List */}
           <div className="space-y-4">
-            {filteredOrders.length > 0 ? (
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : filteredOrders.length > 0 ? (
               filteredOrders.map(order => (
                 <div
                   key={order.id}
@@ -128,32 +152,64 @@ export const Orders: React.FC<OrdersProps> = ({ onNavigate }) => {
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h4 className="font-semibold text-gray-900">
-                        {order.shopName || `Order #${order.id}`}
-                      </h4>
+                      <h4 className="font-semibold text-gray-900">{order.shopName}</h4>
                       <p className="text-sm text-gray-600">
-                        {order.date} • {order.items} items
+                        Order #{order.id} • {order.created_at}
                       </p>
                     </div>
                     {activeTab === 'active' ? (
                       <StatusBadge status={order.status} />
                     ) : (
-                      <span className="text-gray-600">₹{order.totalAmount}</span>
+                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        Completed
+                      </span>
                     )}
                   </div>
-                  
-                  {activeTab === 'active' && order.pickupTime && order.deliveryTime && (
+
+                  {/* Items List */}
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 mb-2">Items:</p>
+                    <div className="space-y-1">
+                      {order.items.map((item, index) => (
+                        <p key={index} className="text-sm">
+                          {item.count}x {item.type}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
+                    <span>Total: {getTotalItems(order.items)} items</span>
+                    <span>₹{order.total_amount}</span>
+                  </div>
+
+                  {activeTab === 'active' && order.pickup_time && order.delivery_time && (
                     <div className="border-t pt-4">
                       <div className="grid grid-cols-2 gap-6 text-sm">
                         <div>
                           <p className="text-gray-600">Pickup</p>
-                          <p className="font-medium">{order.pickupTime}</p>
+                          <p className="font-medium">{order.pickup_time}</p>
                         </div>
                         <div>
                           <p className="text-gray-600">Delivery</p>
-                          <p className="font-medium">{order.deliveryTime}</p>
+                          <p className="font-medium">{order.delivery_time}</p>
                         </div>
                       </div>
+
+                      {order.pickup_address && (
+                        <div className="mt-4 text-sm">
+                          <p className="text-gray-600">Pickup Address:</p>
+                          <p className="mt-1">
+                            {order.pickup_address.street}
+                            {order.pickup_address.landmark && `, ${order.pickup_address.landmark}`}
+                          </p>
+                          <p>
+                            {order.pickup_address.city}
+                            {order.pickup_address.state && `, ${order.pickup_address.state}`} - 
+                            {order.pickup_address.pincode}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

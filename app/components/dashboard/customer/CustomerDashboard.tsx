@@ -6,9 +6,40 @@ import { StatusBadge } from '../../../common/StatusBadge';
 import { NewOrder } from './NewOrder';
 import { Orders } from './Orders';
 import { Settings } from './Settings';
-import { Order } from '@/app/types';
+import { OrderStatus } from '@/app/types';
+import { apiService } from '@/app/services/api';
+import { toast } from 'react-hot-toast';
 
 type ViewType = 'dashboard' | 'new-order' | 'orders' | 'settings';
+
+interface OrderItem {
+  type: string;
+  count: number;
+}
+
+interface DashboardOrder {
+  id: string;
+  shopName: string;
+  items: OrderItem[];
+  status: OrderStatus;
+  pickup_time: string;
+  delivery_time: string;
+  total_amount: number;
+  pickup_address?: {
+    street?: string;
+    landmark?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+  };
+  created_at: string;
+}
+
+interface Profile {
+  name: string;
+  email: string;
+  phone: string;
+}
 
 const TopNav = () => (
   <div className="fixed top-0 left-0 right-0 border-b bg-white z-10">
@@ -31,19 +62,62 @@ const TopNav = () => (
 export const CustomerDashboard = () => {
   const [view, setView] = useState<ViewType>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeOrders] = useState([
-    {
-      id: "ORD001",
-      shopName: "Premium Pressers",
-      items: 5,
-      status: "inProgress" as const,
-      pickupTime: "Today, 2:00 PM",
-      deliveryTime: "Tomorrow, 10:00 AM",
-      totalAmount: "₹250"
-    }
-  ]);
+  const [activeOrders, setActiveOrders] = useState<DashboardOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
-  // Render different views based on state
+  const fetchActiveOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.get('/customer/orders?type=active');
+      
+      const formattedOrders = response.data.map((order: any) => ({
+        ...order,
+        pickup_time: new Date(order.pickup_time).toLocaleString([], {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        delivery_time: new Date(order.delivery_time).toLocaleString([], {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        created_at: new Date(order.created_at.$date).toLocaleDateString()
+      }));
+
+      setActiveOrders(formattedOrders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast.error('Failed to fetch orders');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const response = await apiService.get('/customer/profile');
+      setProfile(response.data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      toast.error('Failed to fetch profile');
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+    fetchActiveOrders();
+  }, []);
+
+  const getTotalItems = (items: OrderItem[]) => 
+    items.reduce((acc, item) => acc + item.count, 0);
+
+  const filteredOrders = activeOrders.filter(order =>
+    order.shopName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (view === 'new-order') {
     return <NewOrder onBack={() => setView('dashboard')} />;
   }
@@ -64,7 +138,9 @@ export const CustomerDashboard = () => {
         <main className="max-w-7xl mx-auto px-6">
           {/* Header */}
           <div className="mt-8 mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Welcome back, John</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Welcome back, {profile?.name || 'User'}
+            </h1>
             <p className="text-gray-600 mt-1">What would you like to do today?</p>
           </div>
 
@@ -95,37 +171,80 @@ export const CustomerDashboard = () => {
           {/* Active Orders */}
           <div className="mb-8">
             <h3 className="text-lg font-bold mb-4">Active Orders</h3>
-            <div className="grid gap-4">
-              {activeOrders.map(order => (
-                <div key={order.id} 
-                  className="bg-white border rounded-xl p-6 hover:border-gray-300 transition-colors cursor-pointer"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{order.shopName}</h4>
-                      <p className="text-sm text-gray-600">Order #{order.id}</p>
-                    </div>
-                    <StatusBadge status={order.status} />
-                  </div>
-                  <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
-                    <span>{order.items} items</span>
-                    <span>{order.totalAmount}</span>
-                  </div>
-                  <div className="border-t pt-4">
-                    <div className="grid grid-cols-2 gap-6 text-sm">
-                      <div>
-                        <p className="text-gray-600">Pickup</p>
-                        <p className="font-medium">{order.pickupTime}</p>
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {filteredOrders.length > 0 ? (
+                  filteredOrders.map(order => (
+                    <div 
+                      key={order.id} 
+                      className="bg-white border rounded-xl p-6 hover:border-gray-300 transition-colors cursor-pointer"
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{order.shopName}</h4>
+                          <p className="text-sm text-gray-600">Order #{order.id}</p>
+                        </div>
+                        <StatusBadge status={order.status} />
                       </div>
-                      <div>
-                        <p className="text-gray-600">Delivery</p>
-                        <p className="font-medium">{order.deliveryTime}</p>
+
+                      {/* Items List */}
+                      <div className="mb-4">
+                        <p className="text-sm text-gray-600 mb-2">Items:</p>
+                        <div className="space-y-1">
+                          {order.items.map((item, index) => (
+                            <p key={index} className="text-sm">
+                              {item.count}x {item.type}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
+                        <span>Total: {getTotalItems(order.items)} items</span>
+                        <span>₹{order.total_amount}</span>
+                      </div>
+
+                      <div className="border-t pt-4">
+                        <div className="grid grid-cols-2 gap-6 text-sm">
+                          <div>
+                            <p className="text-gray-600">Pickup</p>
+                            <p className="font-medium">{order.pickup_time}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">Delivery</p>
+                            <p className="font-medium">{order.delivery_time}</p>
+                          </div>
+                        </div>
+
+                        {order.pickup_address && (
+                          <div className="mt-4 text-sm">
+                            <p className="text-gray-600">Pickup Address:</p>
+                            <p className="mt-1">
+                              {order.pickup_address.street}
+                              {order.pickup_address.landmark && `, ${order.pickup_address.landmark}`}
+                            </p>
+                            <p>
+                              {order.pickup_address.city}
+                              {order.pickup_address.state && `, ${order.pickup_address.state}`} - 
+                              {order.pickup_address.pincode}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-12 bg-white border rounded-xl">
+                    <Package className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                    <p className="text-gray-600">No active orders</p>
                   </div>
-                </div>
-              ))}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </main>
       </div>
@@ -144,14 +263,14 @@ export const CustomerDashboard = () => {
           </button>
           <button 
             onClick={() => setView('orders')}
-            className={`flex flex-col items-center text-gray-400`}
+            className="flex flex-col items-center text-gray-400 hover:text-gray-600"
           >
             <Package className="h-5 w-5" />
             <span className="text-xs mt-1">Orders</span>
           </button>
           <button 
             onClick={() => setView('settings')}
-            className={`flex flex-col items-center text-gray-400`}
+            className="flex flex-col items-center text-gray-400 hover:text-gray-600"
           >
             <Package className="h-5 w-5" />
             <span className="text-xs mt-1">Settings</span>

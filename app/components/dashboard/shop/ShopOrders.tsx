@@ -121,7 +121,7 @@ export const ShopOrders = ({ onNavigate }: ShopOrdersProps) => {
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 pt-32 pb-20">
+      <main className="max-w-7xl mx-auto px-4 pt-20 pb-20">
         {/* Search */}
         <div className="mb-6">
           <div className="relative">
