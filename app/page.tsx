@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { CustomerDashboard } from './components/dashboard/customer/CustomerDashboard';
 import { ShopDashboard } from './components/dashboard/shop/ShopDashboard';

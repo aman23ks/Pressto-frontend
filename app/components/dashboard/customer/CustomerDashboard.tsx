@@ -46,7 +46,7 @@ const TopNav = () => (
     <div className="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
       <div className="flex items-center gap-2">
         <Package className="h-6 w-6 text-blue-600" />
-        <span className="text-xl font-semibold">IronEase</span>
+        <span className="text-xl font-semibold">Pressto</span>
       </div>
       <div className="flex items-center gap-4">
         <Bell className="h-5 w-5 text-gray-600 cursor-pointer" />

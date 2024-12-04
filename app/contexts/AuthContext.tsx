@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { UserType } from '@/app/types';
 import AuthService from '@/app/services/authService';
+import { toast } from 'react-hot-toast';
 
 interface User {
   id: string;
@@ -27,7 +28,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<AuthResponse>;
-  logout: () => void;
+  logout: () => Promise<void>;
   registerCustomer: (data: any) => Promise<AuthResponse>;
   registerShop: (data: any) => Promise<AuthResponse>;
 }
@@ -38,44 +39,98 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = () => {
+  const checkAuth = async () => {
     try {
-      const currentUser = AuthService.getCurrentUser();
-      if (currentUser) {
-        setUser(currentUser);
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      const isValid = await AuthService.verifyToken();
+      
+      if (isValid) {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          setUser(JSON.parse(userData));
+        }
+      } else {
+        setUser(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     } catch (error) {
       console.error('Auth check failed:', error);
+      setUser(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     } finally {
       setLoading(false);
     }
   };
 
+  // Initial auth check and periodic verification
+  useEffect(() => {
+    checkAuth();
+
+    // Verify token every 5 minutes
+    const intervalId = setInterval(checkAuth, 5 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
   const login = async (email: string, password: string): Promise<AuthResponse> => {
-    const response = await AuthService.login({ email, password });
-    setUser(response.user);
-    return response;
+    try {
+      const response = await AuthService.login({ email, password });
+      setUser(response.user);
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || 'Login failed';
+      toast.error(errorMessage);
+      throw error;
+    }
   };
 
-  const logout = () => {
-    AuthService.logout();
-    setUser(null);
+  const logout = async () => {
+    try {
+      setLoading(true);
+      await AuthService.logout();
+      setUser(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.error('Failed to logout');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const registerCustomer = async (data: any): Promise<AuthResponse> => {
-    const response = await AuthService.registerCustomer(data);
-    setUser(response.user);
-    return response;
+    try {
+      const response = await AuthService.registerCustomer(data);
+      setUser(response.user);
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || 'Registration failed';
+      toast.error(errorMessage);
+      throw error;
+    }
   };
 
   const registerShop = async (data: any): Promise<AuthResponse> => {
-    const response = await AuthService.registerShop(data);
-    setUser(response.user);
-    return response;
+    try {
+      const response = await AuthService.registerShop(data);
+      setUser(response.user);
+      return response;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || 'Registration failed';
+      toast.error(errorMessage);
+      throw error;
+    }
   };
 
   const value = {
