@@ -1,14 +1,21 @@
 // services/shopService.ts
 import { apiService } from './api';
 
-export interface Shop {
+interface Shop {
   id: string;
   name: string;
   rating: number;
   distance: string;
-  pricePerItem: number;
   totalOrders: number;
   deliveryTime: string;
+  services: Service[];
+}
+
+interface Service {
+  id: string;
+  type: string;
+  price: number;
+  description?: string;
 }
 
 class ShopService {
