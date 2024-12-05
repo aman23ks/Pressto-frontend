@@ -11,21 +11,26 @@ import {
   DollarSign,
   HelpCircle,
   LogOut,
-  Store
+  Store,
+  ArrowLeft
 } from 'lucide-react';
 import { TopNav } from '../../../common/TopNav';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { apiService } from '@/app/services/api';
 import { toast } from 'react-hot-toast';
+import { ServiceManagement } from './ShopServiceManagement';
 
 interface ShopSettingsProps {
   onNavigate: (view: 'dashboard' | 'orders' | 'settings') => void;
 }
 
+type SettingSection = 'main' | 'services' | 'profile' | 'business-hours' | 'location' | 'pricing';
+
 export const ShopSettings = ({ onNavigate }: ShopSettingsProps) => {
   const [notifications, setNotifications] = useState(true);
   const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [currentSection, setCurrentSection] = useState<SettingSection>('main');
 
   const handleLogout = async () => {
     try {
@@ -38,11 +43,10 @@ export const ShopSettings = ({ onNavigate }: ShopSettingsProps) => {
         }
       });
       
-      logout(); // Clear auth context
+      logout();
       toast.success('Successfully logged out');
     } catch (error) {
       console.error('Logout failed:', error);
-      // Logout anyway if the API fails
       logout();
       toast.success('Logged out');
     } finally {
@@ -55,25 +59,25 @@ export const ShopSettings = ({ onNavigate }: ShopSettingsProps) => {
       title: 'Shop Profile',
       description: 'Manage your shop information',
       icon: Store,
-      action: () => console.log('Navigate to shop profile')
+      action: () => setCurrentSection('profile')
+    },
+    {
+      title: 'Services',
+      description: 'Manage your services and pricing',
+      icon: DollarSign,
+      action: () => setCurrentSection('services')
     },
     {
       title: 'Business Hours',
       description: 'Set your working hours',
       icon: Clock,
-      action: () => console.log('Navigate to business hours')
+      action: () => setCurrentSection('business-hours')
     },
     {
       title: 'Location',
       description: 'Update your shop location',
       icon: MapPin,
-      action: () => console.log('Navigate to location')
-    },
-    {
-      title: 'Pricing',
-      description: 'Manage your service prices',
-      icon: DollarSign,
-      action: () => console.log('Navigate to pricing')
+      action: () => setCurrentSection('location')
     },
     {
       title: 'Notifications',
@@ -91,11 +95,16 @@ export const ShopSettings = ({ onNavigate }: ShopSettingsProps) => {
     }
   ];
 
+  // Render different sections
+  if (currentSection === 'services') {
+    return <ServiceManagement onBack={() => setCurrentSection('main')} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <TopNav userType="Shop Owner" onNotificationClick={() => {}} />
 
-      <main className="pt-10"> {/* Adjusted spacing here */}
+      <main className="pt-10">
         <div className="max-w-7xl mx-auto px-4 pb-20">
           {/* Shop Profile Card */}
           <div className="bg-white border rounded-xl p-6 mb-6">
@@ -148,13 +157,13 @@ export const ShopSettings = ({ onNavigate }: ShopSettingsProps) => {
 
             {/* Logout Button */}
             <button 
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="w-full bg-white border border-red-100 rounded-xl p-4 hover:border-red-200 transition-colors text-left flex items-center text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <LogOut className="h-5 w-5 mr-3" />
-            <span>{isLoggingOut ? 'Logging out...' : 'Log Out'}</span>
-          </button>
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="w-full bg-white border border-red-100 rounded-xl p-4 hover:border-red-200 transition-colors text-left flex items-center text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <LogOut className="h-5 w-5 mr-3" />
+              <span>{isLoggingOut ? 'Logging out...' : 'Log Out'}</span>
+            </button>
           </div>
 
           {/* App Version */}
