@@ -75,8 +75,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     checkAuth();
 
-    // Verify token every 5 minutes
-    const intervalId = setInterval(checkAuth, 5 * 60 * 1000);
+    // Verify token every 30 minutes
+    const intervalId = setInterval(checkAuth, 30 * 60 * 1000);
     
     return () => clearInterval(intervalId);
   }, []);
