@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Bell, Store, User } from 'lucide-react';
+import { Bell, Store, User } from "lucide-react";
 
 interface TopNavProps {
   userType: string;
@@ -12,8 +12,10 @@ export const TopNav = ({ userType, onNotificationClick }: TopNavProps) => (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center h-16">
         <div className="flex items-center">
-          <Store className="h-8 w-8 text-blue-600" />
-          <span className="ml-2 text-xl font-bold">Pressto</span>
+          <a href="/" className="flex items-center">
+            <Store className="h-8 w-8 text-blue-600" />
+            <span className="ml-2 text-xl font-bold">Pressto</span>
+          </a>
         </div>
         <div className="flex items-center space-x-4">
           <button onClick={onNotificationClick}>

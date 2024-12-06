@@ -1,125 +1,78 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { AuthLayout } from './AuthLayout';
-import { AuthProps, ShopOwnerSignupData } from '@/app/types';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { apiService } from '@/app/services/api';
-import React from 'react';
+import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { AuthLayout } from "./AuthLayout";
+import { AuthProps, ShopOwnerSignupData } from "@/app/types";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { apiService } from "@/app/services/api";
+import React from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+const ownerRegistrationSchema = z
+  .object({
+    shopName: z.string().min(1, "Shop name is required"),
+    ownerName: z.string().min(1, "Owner name is required"),
+    email: z.string().email("Invalid email address"),
+    phone: z
+      .string()
+      .transform((str) => Number(str))
+      .refine((num) => !isNaN(num) && num.toString().length === 10, {
+        message: "Phone number must be exactly 10 digits",
+      }),
+    address: z.string().min(1, "Address is required"),
+    zipCode: z
+      .string()
+      .transform((str) => Number(str))
+      .refine((num) => !isNaN(num) && num.toString().length === 6, {
+        message: "ZIP code must be exactly 6 digits",
+      }),
+    serviceArea: z.string().min(1, "Service area is required"),
+    pricePerItem: z
+      .string()
+      .regex(/^\d+$/, "Price must be a number")
+      .min(1, "Price per item is required"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z
+      .string()
+      .min(6, "Confirm password must be at least 6 characters"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
 
 export const ShopOwnerSignup = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
   const { login } = useAuth();
-  const [formData, setFormData] = useState<ShopOwnerSignupData>({
-    shopName: '',
-    ownerName: '',
-    email: '',
-    phone: '',
-    address: '',
-    zipCode: '',
-    serviceArea: '',
-    pricePerItem: '',
-    password: '',
-    confirmPassword: '',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ShopOwnerSignupData>({
+    resolver: zodResolver(ownerRegistrationSchema),
   });
-
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Partial<Record<keyof ShopOwnerSignupData, string>>>({});
-
-  const validateForm = () => {
-    const newErrors: Partial<Record<keyof ShopOwnerSignupData, string>> = {};
-
-    if (!formData.shopName.trim()) newErrors.shopName = 'Shop name is required';
-    if (!formData.ownerName.trim()) newErrors.ownerName = 'Owner name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
-    if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.zipCode.trim()) newErrors.zipCode = 'ZIP code is required';
-    if (!formData.serviceArea.trim()) newErrors.serviceArea = 'Service area is required';
-    if (!formData.pricePerItem.trim()) newErrors.pricePerItem = 'Price per item is required';
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
+  const handleFormSubmit = async (data: ShopOwnerSignupData) => {
+    data.phone = String(data.phone);
+    data.zipCode = String(data.zipCode);
     setLoading(true);
     try {
-      const response = await apiService.post('/auth/register/shop', formData);
-
+      await apiService.post("/auth/register/shop", data);
       // Auto login after successful registration
-      await login(formData.email, formData.password);
-
-      toast.success('Shop registered successfully!');
+      await login(data.email, data.password);
+      toast.success("Shop registered successfully!");
       onSuccess();
+      reset();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || 'Registration failed';
-      toast.error(errorMessage);
-
-      // Handle validation errors from backend
-      if (error.response?.data?.errors) {
-        setErrors(error.response.data.errors);
-      }
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  // Helper function to handle input changes
-  const handleInputChange = (field: keyof ShopOwnerSignupData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
-
-  interface InputFieldProps {
-    id: keyof ShopOwnerSignupData;
-    label: string;
-    type?: string;
-    placeholder?: string;
-    required?: boolean;
-    value: string;
-    onChange: React.ChangeEventHandler<HTMLInputElement>;
-    error?: string;
-  }
-  
-  const InputField = React.memo(({
-    id,
-    label,
-    type = 'text',
-    placeholder = '',
-    required = true,
-    value,
-    onChange,
-    error,
-  }: InputFieldProps) => (
-    <div className="space-y-2">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        id={id}
-        type={type}
-        placeholder={placeholder}
-        className={`w-full px-3 py-2 border ${
-          error ? 'border-red-500' : 'border-gray-300'
-        } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-        value={value}
-        onChange={onChange}
-        required={required}
-      />
-      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-    </div>
-  ));
 
   return (
     <AuthLayout>
@@ -133,137 +86,147 @@ export const ShopOwnerSignup = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
               >
                 <ArrowLeft size={20} />
               </button>
-              <h2 className="text-2xl font-bold text-gray-900 ml-2">Register Your Shop</h2>
+              <h2 className="text-2xl font-bold text-gray-900 ml-2">
+                Register Your Shop
+              </h2>
             </div>
-            <p className="text-gray-600 mb-6">Create an account for your ironing shop</p>
+            <p className="text-gray-600 mb-6">
+              Create an account for your ironing shop
+            </p>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form
+              onSubmit={handleSubmit((data) => {
+                console.log(data);
+                handleFormSubmit(data);
+              })}
+              className="space-y-4"
+            >
               {/* Shop Information */}
               <div className="border-b pb-4 mb-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Shop Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Shop Information
+                </h3>
                 <div className="space-y-4">
                   <InputField
+                    register={register}
                     id="shopName"
                     label="Shop Name"
                     placeholder="Enter your shop name"
-                    value={formData.shopName}
-                    onChange={handleInputChange('shopName')}
-                    error={errors.shopName}
+                    error={errors.shopName?.message}
                   />
                   <InputField
+                    register={register}
                     id="ownerName"
                     label="Owner Name"
                     placeholder="Enter owner's full name"
-                    value={formData.ownerName}
-                    onChange={handleInputChange('ownerName')}
-                    error={errors.ownerName}
+                    error={errors.ownerName?.message}
                   />
                 </div>
               </div>
 
               {/* Contact Information */}
               <div className="border-b pb-4 mb-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Contact Information
+                </h3>
                 <div className="space-y-4">
                   <InputField
+                    register={register}
                     id="email"
                     label="Email"
-                    type="email"
                     placeholder="your@email.com"
-                    value={formData.email}
-                    onChange={handleInputChange('email')}
-                    error={errors.email}
+                    error={errors.email?.message}
                   />
                   <InputField
+                    register={register}
                     id="phone"
                     label="Phone Number"
-                    type="tel"
+                    type="number"
                     placeholder="Enter your phone number"
-                    value={formData.phone}
-                    onChange={handleInputChange('phone')}
-                    error={errors.phone}
+                    error={errors.phone?.message}
                   />
                 </div>
               </div>
-
               {/* Location & Service */}
               <div className="border-b pb-4 mb-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Location & Service</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Location & Service
+                </h3>
                 <div className="space-y-4">
                   <InputField
+                    register={register}
                     id="address"
                     label="Shop Address"
                     placeholder="Enter your shop address"
-                    value={formData.address}
-                    onChange={handleInputChange('address')}
-                    error={errors.address}
+                    error={errors.address?.message}
                   />
                   <div className="grid grid-cols-2 gap-4">
                     <InputField
+                      register={register}
                       id="zipCode"
                       label="ZIP Code"
                       placeholder="Enter ZIP code"
-                      value={formData.zipCode}
-                      onChange={handleInputChange('zipCode')}
-                      error={errors.zipCode}
+                      type="number"
+                      error={errors.zipCode?.message}
                     />
                     <InputField
+                      register={register}
                       id="serviceArea"
                       label="Service Area"
                       placeholder="e.g., 5 km radius"
-                      value={formData.serviceArea}
-                      onChange={handleInputChange('serviceArea')}
-                      error={errors.serviceArea}
+                      error={errors.serviceArea?.message}
                     />
                   </div>
                   <InputField
+                    register={register}
                     id="pricePerItem"
                     label="Price per Item"
                     type="number"
                     placeholder="Enter base price per item"
-                    value={formData.pricePerItem}
-                    onChange={handleInputChange('pricePerItem')}
-                    error={errors.pricePerItem}
+                    error={errors.pricePerItem?.message}
                   />
                 </div>
               </div>
 
               {/* Account Security */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Account Security</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Account Security
+                </h3>
                 <InputField
+                  register={register}
                   id="password"
                   label="Password"
                   type="password"
                   placeholder="Enter password"
-                  value={formData.password}
-                  onChange={handleInputChange('password')}
-                  error={errors.password}
+                  error={errors.password?.message}
                 />
                 <InputField
+                  register={register}
                   id="confirmPassword"
                   label="Confirm Password"
                   type="password"
                   placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange('confirmPassword')}
-                  error={errors.confirmPassword}
+                  error={errors.confirmPassword?.message}
                 />
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
                 className={`w-full py-2 px-4 bg-blue-600 text-white rounded-md ${
-                  loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+                  loading
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-blue-700"
                 }`}
               >
-                {loading ? 'Registering...' : 'Register'}
+                {loading ? "Registering..." : "Register"}
               </button>
             </form>
 
             <p className="text-center text-gray-600 mt-4">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <button
                 onClick={onSwitch}
                 className="text-blue-600 hover:text-blue-800 transition duration-200"
@@ -277,3 +240,39 @@ export const ShopOwnerSignup = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
     </AuthLayout>
   );
 };
+
+const InputField: React.FC<InputFieldProps> = ({
+  id,
+  label,
+  type = "text",
+  placeholder,
+  error,
+  register,
+}) => {
+  return (
+    <div className="space-y-2">
+      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+        {label} <span className="text-red-500">*</span>
+      </label>
+      <input
+        id={id}
+        type={type}
+        placeholder={placeholder}
+        className={`w-full px-3 py-2 border "border-gray-300"
+        rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+        {...register(id)}
+      />
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+    </div>
+  );
+};
+
+interface InputFieldProps {
+  id: keyof ShopOwnerSignupData;
+  label: string;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+  error?: string;
+  register: any;
+}
