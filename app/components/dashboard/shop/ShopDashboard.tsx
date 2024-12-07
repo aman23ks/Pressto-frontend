@@ -50,10 +50,11 @@ export const ShopDashboard = () => {
         id: order.id,
         customerName: order.customerName,
         status: order.status,
-        pickupTime: new Date(order.pickupTime).toLocaleTimeString([], { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        }),
+        pickup_date: new Date(order.pickup_date).toLocaleDateString(),
+        // pickup_time: new Date(order.pickup_time).toLocaleTimeString([], { 
+        //   hour: '2-digit', 
+        //   minute: '2-digit' 
+        // }),
         items: order.items,
         totalAmount: order.totalAmount,
         pickup_address: order.pickup_address || {}
@@ -186,8 +187,8 @@ export const ShopDashboard = () => {
                     <div className="border-t pt-4">
                       <div className="flex justify-between items-center mb-4">
                         <div>
-                          <p className="text-sm text-gray-600">Pickup Time</p>
-                          <p className="font-medium">{order.pickupTime}</p>
+                          <p className="text-sm text-gray-600">Pickup Date</p>
+                          <p className="font-medium">{order.pickup_date}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm text-gray-600">Amount</p>
@@ -195,7 +196,7 @@ export const ShopDashboard = () => {
                         </div>
                       </div>
                       
-                      {/* Action Buttons based on status */}
+                      {/* Action Buttons */}
                       {order.status === 'pending' && (
                         <div className="flex gap-3">
                           <button 

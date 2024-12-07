@@ -4,8 +4,9 @@ import { apiService } from './api';
 interface OrderPayload {
   shop_id: string;
   items: Array<{ type: string; count: number }>;
-  pickup_time: string;
-  delivery_time: string;
+  pickup_date: string;
+  // pickup_time: string;
+  // delivery_time: string;
   pickup_address: {
     street: string;
     city: string;

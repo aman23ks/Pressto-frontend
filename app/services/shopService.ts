@@ -9,6 +9,7 @@ interface Shop {
   totalOrders: number;
   deliveryTime: string;
   services: Service[];
+  address: string;
 }
 
 interface Service {

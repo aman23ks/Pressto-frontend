@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Clock, X } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import OrderService from '@/app/services/orderService';
 import { useRouter } from 'next/navigation';
@@ -14,7 +14,7 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
   const router = useRouter();
   const [orderData, setOrderData] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedTime, setSelectedTime] = useState<string>('');
+  // const [selectedTime, setSelectedTime] = useState<string>('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [address, setAddress] = useState({
     street: '',
@@ -46,7 +46,8 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
     return days;
   };
 
-  // Time slots
+  // Time slots - commented out
+  /*
   const timeSlots = [
     { id: '1', time: '09:00 AM', available: true },
     { id: '2', time: '10:00 AM', available: true },
@@ -58,10 +59,11 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
     { id: '8', time: '04:00 PM', available: true },
     { id: '9', time: '05:00 PM', available: true },
   ];
+  */
 
   const handleSchedule = () => {
-    if (!selectedDate || !selectedTime) {
-      toast.error('Please select date and time');
+    if (!selectedDate) {
+      toast.error('Please select date');
       return;
     }
     if (!address.street || !address.city || !address.state || !address.pincode) {
@@ -78,13 +80,15 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
         return;
       }
   
-      // Format date and time for pickup and delivery
-      const pickupDateTime = `${selectedDate} ${convertTo24Hour(selectedTime)}`;
+      // Format date for pickup
+      // const pickupDateTime = `${selectedDate} ${convertTo24Hour(selectedTime)}`;
       
-      // Calculate delivery time (24 hours after pickup)
+      // Calculate delivery time (24 hours after pickup) - commented out
+      /*
       const pickupDate = new Date(selectedDate + ' ' + convertTo24Hour(selectedTime));
       const deliveryDate = new Date(pickupDate);
       deliveryDate.setHours(deliveryDate.getHours() + 24);
+      */
   
       const orderPayload = {
         shop_id: orderData.shop.id,
@@ -92,8 +96,10 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
           type: item.type,
           count: item.count
         })),
-        pickup_time: pickupDateTime,
-        delivery_time: formatDateTime(deliveryDate),
+        pickup_date: selectedDate,
+        // pickup_time: pickupDateTime,
+        // delivery_time: formatDateTime(deliveryDate),
+        total_amount: orderData.totalAmount,
         status: "pending" as const,
         pickup_address: {
           street: address.street,
@@ -104,7 +110,8 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
         special_instructions: instructions || undefined
       };
   
-      // Add helper function to convert 12-hour to 24-hour format
+      // Helper functions commented out
+      /*
       function convertTo24Hour(time12h: string) {
         const [time, modifier] = time12h.split(' ');
         let [hours, minutes] = time.split(':');
@@ -120,14 +127,14 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
         return `${hours.padStart(2, '0')}:${minutes}:00`;
       }
   
-      // Format date for API
       function formatDateTime(date: Date) {
         return date.toISOString().slice(0, 19).replace('T', ' ');
       }
+      */
   
       console.log('Sending order payload:', orderPayload);
-      
-      const response = await OrderService.createOrder(orderPayload);
+        
+        const response = await OrderService.createOrder(orderPayload);
       toast.success('Order placed successfully!');
       sessionStorage.removeItem('currentOrder');
       router.push('/');
@@ -175,14 +182,15 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
   
           {/* Pickup Details */}
           <div>
-            <p className="text-sm text-gray-600">Pickup Date & Time</p>
+            <p className="text-sm text-gray-600">Pickup Date</p>
             <p className="font-medium">
               {new Date(selectedDate).toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
-              })} at {selectedTime}
+              })}
+              {/* at {selectedTime} */}
             </p>
           </div>
   
@@ -251,7 +259,7 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
         <main className="max-w-2xl mx-auto px-4">
           {/* Date Selection */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-4">Select Date</h2>
+            <h2 className="text-lg font-semibold mb-4 mt-6">Select Date</h2>
             <div className="grid grid-cols-4 gap-3 md:grid-cols-7">
               {getAvailableDates().map((date) => (
                 <button
@@ -271,7 +279,7 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
             </div>
           </div>
 
-          {/* Time Selection */}
+          {/* Time Selection - commented out
           <div className="mb-8">
             <h2 className="text-lg font-semibold mb-4">Select Time</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -294,6 +302,7 @@ export const SchedulePickup = ({ onBack }: SchedulePickupProps) => {
               ))}
             </div>
           </div>
+          */}
 
           {/* Address Form */}
           <div className="space-y-6">

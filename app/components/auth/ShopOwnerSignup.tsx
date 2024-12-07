@@ -30,11 +30,6 @@ const ownerRegistrationSchema = z
       .refine((num) => !isNaN(num) && num.toString().length === 6, {
         message: "ZIP code must be exactly 6 digits",
       }),
-    serviceArea: z.string().min(1, "Service area is required"),
-    pricePerItem: z
-      .string()
-      .regex(/^\d+$/, "Price must be a number")
-      .min(1, "Price per item is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z
       .string()
@@ -56,6 +51,7 @@ export const ShopOwnerSignup = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
     resolver: zodResolver(ownerRegistrationSchema),
   });
   const [loading, setLoading] = useState(false);
+
   const handleFormSubmit = async (data: ShopOwnerSignupData) => {
     data.phone = String(data.phone);
     data.zipCode = String(data.zipCode);
@@ -147,10 +143,11 @@ export const ShopOwnerSignup = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
                   />
                 </div>
               </div>
-              {/* Location & Service */}
+
+              {/* Location */}
               <div className="border-b pb-4 mb-4">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Location & Service
+                  Location
                 </h3>
                 <div className="space-y-4">
                   <InputField
@@ -160,30 +157,13 @@ export const ShopOwnerSignup = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
                     placeholder="Enter your shop address"
                     error={errors.address?.message}
                   />
-                  <div className="grid grid-cols-2 gap-4">
-                    <InputField
-                      register={register}
-                      id="zipCode"
-                      label="ZIP Code"
-                      placeholder="Enter ZIP code"
-                      type="number"
-                      error={errors.zipCode?.message}
-                    />
-                    <InputField
-                      register={register}
-                      id="serviceArea"
-                      label="Service Area"
-                      placeholder="e.g., 5 km radius"
-                      error={errors.serviceArea?.message}
-                    />
-                  </div>
                   <InputField
                     register={register}
-                    id="pricePerItem"
-                    label="Price per Item"
+                    id="zipCode"
+                    label="ZIP Code"
+                    placeholder="Enter ZIP code"
                     type="number"
-                    placeholder="Enter base price per item"
-                    error={errors.pricePerItem?.message}
+                    error={errors.zipCode?.message}
                   />
                 </div>
               </div>

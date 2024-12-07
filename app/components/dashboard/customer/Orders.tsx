@@ -17,8 +17,9 @@ interface Order {
   shopName: string;
   items: OrderItem[];
   status: OrderStatus;
-  pickup_time: string;
-  delivery_time: string;
+  pickup_date: string;
+  // pickup_time: string;
+  // delivery_time: string;
   total_amount: number;
   pickup_address?: {
     street?: string;
@@ -44,7 +45,6 @@ export const Orders: React.FC<OrdersProps> = ({ onNavigate }) => {
     try {
       setLoading(true);
       
-      // Log the current tab and endpoint
       const orderType = activeTab === 'active' ? 'active' : 'history';
       const endpoint = `/customer/orders?type=${orderType}`;
       console.log('Fetching orders:', endpoint);
@@ -54,16 +54,17 @@ export const Orders: React.FC<OrdersProps> = ({ onNavigate }) => {
       
       const formattedOrders = response.data.map((order: any) => ({
         ...order,
-        pickup_time: order.pickup_time ? new Date(order.pickup_time).toLocaleString([], {
-          weekday: 'short',
-          hour: '2-digit',
-          minute: '2-digit'
-        }) : null,
-        delivery_time: order.delivery_time ? new Date(order.delivery_time).toLocaleString([], {
-          weekday: 'short',
-          hour: '2-digit',
-          minute: '2-digit'
-        }) : null,
+        pickup_date: new Date(order.pickup_date).toLocaleDateString(),
+        // pickup_time: order.pickup_time ? new Date(order.pickup_time).toLocaleString([], {
+        //   weekday: 'short',
+        //   hour: '2-digit',
+        //   minute: '2-digit'
+        // }) : null,
+        // delivery_time: order.delivery_time ? new Date(order.delivery_time).toLocaleString([], {
+        //   weekday: 'short',
+        //   hour: '2-digit',
+        //   minute: '2-digit'
+        // }) : null,
         created_at: order.created_at?.$date ? 
           new Date(order.created_at.$date).toLocaleDateString() :
           new Date(order.created_at).toLocaleDateString()
@@ -183,17 +184,22 @@ export const Orders: React.FC<OrdersProps> = ({ onNavigate }) => {
                     <span>₹{order.total_amount}</span>
                   </div>
 
-                  {activeTab === 'active' && order.pickup_time && order.delivery_time && (
+                  {activeTab === 'active' && (
                     <div className="border-t pt-4">
-                      <div className="grid grid-cols-2 gap-6 text-sm">
+                      <div className="grid grid-cols-1 gap-6 text-sm">
                         <div>
-                          <p className="text-gray-600">Pickup</p>
+                          <p className="text-gray-600">Pickup Date</p>
+                          <p className="font-medium">{order.pickup_date}</p>
+                        </div>
+                        {/* Time display commented out */}
+                        {/* <div>
+                          <p className="text-gray-600">Pickup Time</p>
                           <p className="font-medium">{order.pickup_time}</p>
                         </div>
                         <div>
-                          <p className="text-gray-600">Delivery</p>
+                          <p className="text-gray-600">Delivery Time</p>
                           <p className="font-medium">{order.delivery_time}</p>
-                        </div>
+                        </div> */}
                       </div>
 
                       {order.pickup_address && (

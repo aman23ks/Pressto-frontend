@@ -37,8 +37,9 @@ export interface Order {
   customerName: string;
   items: OrderItem[];
   status: 'pending' | 'inProgress' | 'completed' | 'cancelled';
-  pickupTime: string;
-  deliveryTime?: string;
+  pickup_date: string;
+  // pickup_time: string;
+  // delivery_time?: string;
   totalAmount: number;
   created_at?: {
     $date: string;
@@ -79,8 +80,8 @@ export interface ShopOwnerSignupData {
   phone: string;
   address: string;
   zipCode: string;
-  serviceArea: string;
-  pricePerItem: string;
+  // serviceArea: string;
+  // pricePerItem: string;
   password: string;
   confirmPassword: string;
 }

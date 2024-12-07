@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Search, MapPin, Star, Clock } from 'lucide-react';
 import { TopNav } from '../../../common/TopNav';
 import { useRouter } from 'next/navigation';
-import { StatusBadge } from '../../../common/StatusBadge';
 import ShopService from '@/app/services/shopService';
 import { toast } from 'react-hot-toast';
 
@@ -20,6 +19,7 @@ interface Shop {
   name: string;
   rating: number;
   distance: string;
+  address: string;
   totalOrders: number;
   deliveryTime: string;
   services?: Service[];
@@ -157,6 +157,9 @@ export const NewOrder = ({ onBack }: { onBack: () => void }) => {
                           <Star size={16} className="mr-1 text-yellow-400" />
                           <span>{shop.rating}</span>
                         </div>
+                        <div className="text-sm text-gray-600 mt-1">
+                          {shop.address}
+                        </div>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-600">
@@ -192,6 +195,9 @@ export const NewOrder = ({ onBack }: { onBack: () => void }) => {
                     <Star size={16} className="mr-1 text-yellow-400" />
                     <span>{selectedShop.rating}</span>
                   </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {selectedShop.address}
+                  </div>
                 </div>
                 <button 
                   onClick={() => setSelectedShop(null)}
@@ -202,6 +208,7 @@ export const NewOrder = ({ onBack }: { onBack: () => void }) => {
               </div>
             </div>
 
+            {/* Rest of the component remains the same */}
             {/* Item Selection */}
             <div className="bg-white rounded-xl border p-6 mb-6">
               <h3 className="text-lg font-medium mb-4">Select Items</h3>

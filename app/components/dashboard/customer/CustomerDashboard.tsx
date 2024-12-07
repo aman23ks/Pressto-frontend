@@ -22,8 +22,9 @@ interface DashboardOrder {
   shopName: string;
   items: OrderItem[];
   status: OrderStatus;
-  pickup_time: string;
-  delivery_time: string;
+  pickup_date: string;
+  // pickup_time: string;
+  // delivery_time: string;
   total_amount: number;
   pickup_address?: {
     street?: string;
@@ -73,16 +74,16 @@ export const CustomerDashboard = () => {
       
       const formattedOrders = response.data.map((order: any) => ({
         ...order,
-        pickup_time: new Date(order.pickup_time).toLocaleString([], {
-          weekday: 'short',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        delivery_time: new Date(order.delivery_time).toLocaleString([], {
-          weekday: 'short',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
+        // pickup_time: new Date(order.pickup_time).toLocaleString([], {
+        //   weekday: 'short',
+        //   hour: '2-digit',
+        //   minute: '2-digit'
+        // }),
+        // delivery_time: new Date(order.delivery_time).toLocaleString([], {
+        //   weekday: 'short',
+        //   hour: '2-digit',
+        //   minute: '2-digit'
+        // }),
         created_at: new Date(order.created_at.$date).toLocaleDateString()
       }));
 
@@ -210,14 +211,18 @@ export const CustomerDashboard = () => {
 
                       <div className="border-t pt-4">
                         <div className="grid grid-cols-2 gap-6 text-sm">
-                          <div>
+                        <div>
+                          <p className="text-gray-600">Pickup Date</p>
+                          <p className="font-medium">{order.pickup_date}</p>
+                        </div>
+                          {/* <div>
                             <p className="text-gray-600">Pickup</p>
                             <p className="font-medium">{order.pickup_time}</p>
                           </div>
                           <div>
                             <p className="text-gray-600">Delivery</p>
                             <p className="font-medium">{order.delivery_time}</p>
-                          </div>
+                          </div> */}
                         </div>
 
                         {order.pickup_address && (
