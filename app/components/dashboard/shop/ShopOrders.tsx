@@ -18,7 +18,6 @@ interface Order {
   items: { type: string; count: number }[];
   status: OrderStatus;
   pickup_date: string;
-  // pickup_time: string;
   totalAmount: number;
   created_at: string;
   pickup_address: {
@@ -33,6 +32,7 @@ interface Order {
 export const ShopOrders = ({ onNavigate }: ShopOrdersProps) => {
   const [activeTab, setActiveTab] = useState<'pending' | 'inProgress' | 'completed'>('pending');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,10 +49,6 @@ export const ShopOrders = ({ onNavigate }: ShopOrdersProps) => {
         items: order.items,
         status: order.status,
         pickup_date: order.pickup_date,
-        // pickup_time: new Date(order.pickup_time).toLocaleTimeString([], {
-        //   hour: '2-digit',
-        //   minute: '2-digit'
-        // }),
         totalAmount: order.totalAmount,
         created_at: new Date(order.created_at.$date).toLocaleDateString(),
         pickup_address: order.pickup_address || {}
@@ -93,7 +89,9 @@ export const ShopOrders = ({ onNavigate }: ShopOrdersProps) => {
       (activeTab === 'inProgress' && order.status === 'inProgress') ||
       (activeTab === 'completed' && order.status === 'completed');
 
-    return matchesSearch && matchesTab;
+    const matchesDate = !selectedDate || order.pickup_date === selectedDate;
+
+    return matchesSearch && matchesTab && matchesDate;
   });
 
   return (
@@ -124,19 +122,44 @@ export const ShopOrders = ({ onNavigate }: ShopOrdersProps) => {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 pt-20 pb-20">
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              placeholder="Search orders..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+        {/* Search and Date Filter */}
+        <div className="mb-6 space-y-4">
+        {/* Search input remains the same */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <input
+            type="text"
+            placeholder="Search orders..."
+            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
+        
+        {/* Enhanced Date Filter UI */}
+        <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center space-x-3">
+            <div className="text-gray-600 font-medium">Filter by Date</div>
+            <div className="relative">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              />
+            </div>
+          </div>
+          {selectedDate && (
+            <button
+              onClick={() => setSelectedDate('')}
+              className="flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            >
+              Clear Filter
+              <span className="ml-2">×</span>
+            </button>
+          )}
+        </div>
+      </div>
 
         {/* Orders List */}
         {loading ? (
