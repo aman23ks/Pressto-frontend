@@ -1,5 +1,5 @@
 export const AVAILABLE_LANGUAGES = [
   { value: "en", label: "English" },
-  { value: "mr", label: "Marathi" },
-  { value: "hi", label: "Hindi" },
+  { value: "mr", label: "मराठी" },
+  { value: "hi", label: "हिंदी" },
 ];
