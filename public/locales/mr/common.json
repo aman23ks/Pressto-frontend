@@ -1,19 +1,53 @@
 {
+  "loading": "लोड करत आहे",
   "login": {
-    "welcome": "परत स्वागत आहे! कृपया आपल्या खात्यात लॉगिन करा",
+    "welcome": "परत स्वागत आहे! कृपया तुमच्या खात्यात लॉगिन करा",
     "customer-login": "ग्राहक लॉगिन",
     "email": "ईमेल",
     "password": "पासवर्ड",
-    "no-account": "तुमच्याकडे खाते नाही?",
-    "register": "साइन अप करा",
+    "no-account": "तुमच्याकडे खाते नाही का?",
+    "register": "नोंदणी करा",
     "shop-owner-login": "दुकान मालक लॉगिन",
-    "welcome-shop-owner": "परत स्वागत आहे! कृपया आपल्या दुकानाच्या खात्यात लॉगिन करा",
-    "register-shop-owner": "आपले दुकान नोंदणी करा"
+    "welcome-shop-owner": "परत स्वागत आहे! कृपया तुमच्या दुकानाच्या खात्यात लॉगिन करा",
+    "register-shop-owner": "तुमचे दुकान नोंदणी करा",
+    "login": "लॉगिन",
+    "logging-in": "लॉगिन करत आहे"
   },
   "index": {
-    "welcome": "मध्ये आपले स्वागत आहे",
-    "choose-option": "तुम्हाला ॲप कसा वापरायचा आहे ते निवडा",
+    "welcome": "स्वागत आहे",
+    "choose-option": "अ‍ॅप कसा वापरायचा ते निवडा",
     "get-clothes-ironed": "मला माझे कपडे इस्त्री करायचे आहेत",
-    "own-ironing-shop": "माझे इस्त्रीचे दुकान आहे"
+    "own-ironing-shop": "माझे स्वतःचे इस्त्री दुकान आहे"
+  },
+  "sign-up": {
+    "customer-signup": "ग्राहक साइन अप",
+    "create-account": "तुमचे ग्राहक खाते तयार करा",
+    "full-name": "पूर्ण नाव",
+    "email": "ईमेल",
+    "phone-number": "फोन नंबर",
+    "password": "पासवर्ड",
+    "confirm-password": "पासवर्डची पुष्टी करा",
+    "sign-up": "नोंदणी करा",
+    "have-account": "आधीच खाते आहे?",
+    "login": "लॉगिन करा",
+    "shop-owner-signup": "तुमचे दुकान नोंदणी करा",
+    "create-shop-account": "तुमच्या इस्त्री दुकानासाठी खाते तयार करा",
+    "shop-information": "दुकान माहिती",
+    "contact-information": "संपर्क माहिती",
+    "location": "स्थान",
+    "account-security": "खाते सुरक्षा",
+    "shop-name": "दुकानाचे नाव",
+    "owner-name": "मालकाचे नाव",
+    "shop-address": "दुकानाचा पत्ता",
+    "zip-code": "पिन कोड",
+    "enter-shop-name": "तुमच्या दुकानाचे नाव भरा",
+    "enter-owner-name": "मालकाचे पूर्ण नाव भरा",
+    "enter-phone-number": "तुमचा फोन नंबर भरा",
+    "enter-shop-address": "तुमचा दुकानाचा पत्ता भरा",
+    "enter-zip-code": "तुमचा पिन कोड भरा",
+    "enter-password": "तुमचा पासवर्ड भरा",
+    "enter-confirm-password": "तुमचा पासवर्ड पुन्हा भरा",
+    "registering": "नोंदणी करत आहे",
+    "register": "नोंदणी करा"
   }
 }

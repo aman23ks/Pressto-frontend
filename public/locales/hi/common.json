@@ -1,4 +1,5 @@
 {
+  "loading": "लोड हो रहा है",
   "login": {
     "welcome": "वापस स्वागत है! कृपया अपने खाते में लॉगिन करें",
     "customer-login": "ग्राहक लॉगिन",
@@ -7,13 +8,46 @@
     "no-account": "क्या आपके पास खाता नहीं है?",
     "register": "साइन अप करें",
     "shop-owner-login": "दुकान मालिक लॉगिन",
-    "welcome-shop-owner": "वापस स्वागत है! कृपया अपने दुकान खाते में लॉगिन करें",
-    "register-shop-owner": "अपनी दुकान पंजीकृत करें"
+    "welcome-shop-owner": "वापस स्वागत है! कृपया अपनी दुकान के खाते में लॉगिन करें",
+    "register-shop-owner": "अपनी दुकान पंजीकृत करें",
+    "login": "लॉगिन",
+    "logging-in": "लॉगिन हो रहा है"
   },
   "index": {
-    "welcome": "में आपका स्वागत है",
+    "welcome": "आपका स्वागत है",
     "choose-option": "ऐप का उपयोग कैसे करना चाहते हैं, चुनें",
-    "get-clothes-ironed": "मैं अपने कपड़े इस्त्री करवाना चाहता हूँ",
-    "own-ironing-shop": "मेरा इस्त्री का दुकान है"
+    "get-clothes-ironed": "मुझे अपने कपड़े इस्त्री करवाने हैं",
+    "own-ironing-shop": "मेरी खुद की इस्त्री की दुकान है"
+  },
+  "sign-up": {
+    "customer-signup": "ग्राहक साइन अप",
+    "create-account": "अपना ग्राहक खाता बनाएं",
+    "full-name": "पूरा नाम",
+    "email": "ईमेल",
+    "phone-number": "फोन नंबर",
+    "password": "पासवर्ड",
+    "confirm-password": "पासवर्ड की पुष्टि करें",
+    "sign-up": "साइन अप करें",
+    "have-account": "पहले से ही एक खाता है?",
+    "login": "लॉग इन करें",
+    "shop-owner-signup": "अपनी दुकान पंजीकृत करें",
+    "create-shop-account": "अपनी इस्त्री की दुकान का खाता बनाएं",
+    "shop-information": "दुकान की जानकारी",
+    "contact-information": "संपर्क जानकारी",
+    "location": "स्थान",
+    "account-security": "खाते की सुरक्षा",
+    "shop-name": "दुकान का नाम",
+    "owner-name": "मालिक का नाम",
+    "shop-address": "दुकान का पता",
+    "zip-code": "पिन कोड",
+    "enter-shop-name": "अपनी दुकान का नाम दर्ज करें",
+    "enter-owner-name": "मालिक का पूरा नाम दर्ज करें",
+    "enter-phone-number": "अपना फोन नंबर दर्ज करें",
+    "enter-shop-address": "अपना दुकान का पता दर्ज करें",
+    "enter-zip-code": "अपना पिन कोड दर्ज करें",
+    "enter-password": "अपना पासवर्ड दर्ज करें",
+    "enter-confirm-password": "अपना पासवर्ड फिर से दर्ज करें",
+    "registering": "पंजीकरण हो रहा है",
+    "register": "पंजीकरण करें"
   }
 }

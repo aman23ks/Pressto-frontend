@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { AuthLayout } from "../app/components/auth/AuthLayout";
-import { AuthProps } from "@/app/types";
+import { CustomerSignupData } from "@/app/types";
 import AuthService from "@/app/services/authService";
 import { useTranslation } from "next-i18next";
 import { GetServerSideProps } from "next";
@@ -16,36 +16,40 @@ import Loader from "@/app/components/Loader/Loader";
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return getI18nProps(locale);
 };
-export default function CustomerLogin() {
-  const router = useRouter();
-  const { t } = useTranslation("common");
-  const [formData, setFormData] = useState({
+
+const CustomerSignup = () => {
+  const [formData, setFormData] = useState<
+    CustomerSignupData & { confirmPassword: string }
+  >({
+    name: "",
     email: "",
+    phone: "",
     password: "",
+    confirmPassword: "",
   });
   const [loader, setLoader] = useState(false);
+  const { t } = useTranslation("common");
   const { loading, isAuthenticated } = useAuth();
-
+  const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoader(true);
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
+    setLoader(true);
     try {
-      const response = await AuthService.login({
+      await AuthService.registerCustomer({
+        name: formData.name,
         email: formData.email,
+        phone: formData.phone,
         password: formData.password,
       });
-      // Verify user type
-      if (response.user.user_type !== "customer") {
-        toast.error("Please use customer login");
-        return;
-      }
-
-      toast.success("Login successful!");
+      toast.success("Registration successful!");
       router.push("/");
-    } catch (error: any) {
-      toast.error(error.message || "Login failed");
-      console.error("Login error:", error);
+    } catch (error) {
+      console.error("Registration error:", error);
     } finally {
       setLoader(false);
     }
@@ -68,26 +72,43 @@ export default function CustomerLogin() {
             <div className="flex items-center mb-4">
               <button
                 onClick={() => {
-                  router.push("/index-dummy-window");
+                  router.back();
                 }}
                 className="text-gray-600 hover:text-gray-900"
-                disabled={loader}
               >
                 <ArrowLeft size={20} />
               </button>
               <h2 className="text-2xl font-bold text-gray-900 ml-2">
-                {t("login.customer-login")}
+                {t("sign-up.customer-signup")}
               </h2>
             </div>
-            <p className="text-gray-600 mb-6">{t("login.welcome")}</p>
+            <p className="text-gray-600 mb-6">{t("sign-up.create-account")}</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {t("sign-up.full-name")}
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  required
+                />
+              </div>
               <div className="space-y-2">
                 <label
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  {t("login.email")}
+                  {t("sign-up.email")}
                 </label>
                 <input
                   id="email"
@@ -97,7 +118,24 @@ export default function CustomerLogin() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  disabled={loader}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {t("sign-up.phone-number")}
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -106,7 +144,7 @@ export default function CustomerLogin() {
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  {t("login.password")}
+                  {t("sign-up.password")}
                 </label>
                 <input
                   id="password"
@@ -116,30 +154,48 @@ export default function CustomerLogin() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  disabled={loader}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  {t("sign-up.confirm-password")}
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
                   required
                 />
               </div>
               <button
                 type="submit"
-                disabled={loader}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-blue-400"
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200"
               >
-                {loader ? `${t("login.logging-in")}...` : t("login.login")}
+                {t("sign-up.sign-up")}
               </button>
             </form>
           </div>
           <div className="px-6 py-4 bg-gray-50 border-t">
             <p className="text-sm text-gray-600 text-center">
-              {t("login.no-account")}{" "}
+              {t("sign-up.have-account")}{" "}
               <button
                 onClick={() => {
-                  router.push("/customer-sign-up");
+                  router.push("/customer-login");
                 }}
                 className="text-blue-600 hover:underline font-medium"
-                disabled={loader}
               >
-                {t("login.register")}
+                {t("sign-up.login")}
               </button>
             </p>
           </div>
@@ -147,4 +203,6 @@ export default function CustomerLogin() {
       </div>
     </AuthLayout>
   );
-}
+};
+
+export default CustomerSignup;
