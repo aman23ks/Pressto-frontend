@@ -25,8 +25,6 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
         email: formData.email,
         password: formData.password,
       });
-      console.log("-------response-------");
-      console.log(response);
       // Verify user type
       if (response.user.user_type !== "customer") {
         toast.error("Please use customer login");
@@ -60,7 +58,7 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
                 Customer Login
               </h2>
             </div>
-            <p className="text-gray-600 mb-6">{t("welcome")}</p>
+            <p className="text-gray-600 mb-6">Welcome back! Please login to your account</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
