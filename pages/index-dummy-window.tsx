@@ -6,14 +6,14 @@ import { CustomerSignup } from "@/app/components/auth/CustomerSignup";
 import { ShopOwnerLogin } from "@/app/components/auth/ShopOwnerLogin";
 import { ShopOwnerSignup } from "@/app/components/auth/ShopOwnerSignup";
 import { ViewType } from "@/app/types";
-import { useAuth } from "@/app/contexts/AuthContext";
 import { Store } from "lucide-react";
 import { useTranslation } from "next-i18next";
 import { GetServerSideProps } from "next";
 import { getI18nProps } from "@/utils/server-side-translation";
 import { useRouter } from "next/router";
-import { AuthLayout } from "../app/components/auth/AuthLayout";
 import { LanguageSelect } from "@/app/components/LanguageSelect";
+import { useAuth } from "@/app/contexts/AuthContext";
+import Loader from "@/app/components/Loader/Loader";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return getI18nProps(locale);
@@ -21,16 +21,17 @@ export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
 // TODO: rename this file index when all other files moved to pages folder
 const AuthFlow = () => {
   const [view, setView] = useState<ViewType>("role-select");
-  const { loading } = useAuth();
+  const { loading, isAuthenticated } = useAuth();
   const router = useRouter();
   const { t } = useTranslation("common");
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl font-semibold">{t("loading")}...</div>
-      </div>
-    );
+    return <Loader />;
+  }
+
+  if (isAuthenticated) {
+    router.push("/");
+    return null;
   }
 
   if (view === "role-select") {

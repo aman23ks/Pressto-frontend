@@ -5,30 +5,32 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { AuthLayout } from "../app/components/auth/AuthLayout";
 import { AuthProps, LoginData } from "@/app/types";
-import { useAuth } from "@/app/contexts/AuthContext";
 import AuthService from "@/app/services/authService";
 import { useTranslation } from "next-i18next";
 import { GetServerSideProps } from "next";
 import { getI18nProps } from "@/utils/server-side-translation";
 import { useRouter } from "next/router";
+import { useAuth } from "@/app/contexts/AuthContext";
+import Loader from "@/app/components/Loader/Loader";
 
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return getI18nProps(locale);
 };
 
-const ShopOwnerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
+const ShopOwnerLogin = () => {
   const { login } = useAuth();
   const { t } = useTranslation("common");
   const router = useRouter();
+  const { loading, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState<LoginData>({
     email: "",
     password: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loader, setLoader] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setLoader(true);
 
     try {
       // Call AuthService directly
@@ -44,13 +46,13 @@ const ShopOwnerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
       login(formData.email, formData.password);
 
       toast.success("Login successful!");
-      onSuccess();
+      router.push("/");
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || error.message || "Login failed";
       toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      setLoader(false);
     }
   };
 
@@ -58,7 +60,14 @@ const ShopOwnerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
     (field: keyof LoginData) => (e: React.ChangeEvent<HTMLInputElement>) => {
       setFormData((prev) => ({ ...prev, [field]: e.target.value }));
     };
+  if (loading) {
+    return <Loader />;
+  }
 
+  if (isAuthenticated) {
+    router.push("/");
+    return null;
+  }
   return (
     <AuthLayout>
       <div className="flex justify-center items-center min-h-[calc(100vh-80px)]">
@@ -69,7 +78,7 @@ const ShopOwnerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
                 onClick={() => {
                   router.push("/index-dummy-window");
                 }}
-                disabled={loading}
+                disabled={loader}
                 className="text-gray-600 hover:text-gray-900"
               >
                 <ArrowLeft size={20} />
@@ -96,7 +105,7 @@ const ShopOwnerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.email}
                   onChange={handleInputChange("email")}
-                  disabled={loading}
+                  disabled={loader}
                   required
                 />
               </div>
@@ -113,16 +122,16 @@ const ShopOwnerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.password}
                   onChange={handleInputChange("password")}
-                  disabled={loading}
+                  disabled={loader}
                   required
                 />
               </div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loader}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Logging in..." : "Login"}
+                {loader ? `${t("login.logging-in")}...` : t("login.login")}
               </button>
             </form>
           </div>
@@ -130,8 +139,10 @@ const ShopOwnerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
             <p className="text-sm text-gray-600 text-center">
               {t("login.no-account")}{" "}
               <button
-                onClick={onSwitch}
-                disabled={loading}
+                onClick={() => {
+                  router.push("/shop-owner-sign-up");
+                }}
+                disabled={loader}
                 className="text-blue-600 hover:underline font-medium"
               >
                 {t("login.register-shop-owner")}

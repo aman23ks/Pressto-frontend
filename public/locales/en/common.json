@@ -9,12 +9,45 @@
     "register": "Sign up",
     "shop-owner-login": "Shop Owner Login",
     "welcome-shop-owner": "Welcome back! Please login to your shop account",
-    "register-shop-owner": "Register your shop"
+    "register-shop-owner": "Register your shop",
+    "login": "Login",
+    "logging-in": "Logging in"
   },
   "index": {
     "welcome": "Welcome to",
     "choose-option": "Choose how you want to use the app",
     "get-clothes-ironed": "I want to get my clothes ironed",
     "own-ironing-shop": "I own an ironing shop"
+  },
+  "sign-up": {
+    "customer-signup": "Customer Signup",
+    "create-account": "Create your customer account",
+    "full-name": "Full Name",
+    "email": "Email",
+    "phone-number": "Phone Number",
+    "password": "Password",
+    "confirm-password": "Confirm Password",
+    "sign-up": "Sign Up",
+    "have-account": "Already have an account?",
+    "login": "Log in",
+    "shop-owner-signup": "Register Your Shop",
+    "create-shop-account": "Create an account for your ironing shop",
+    "shop-information": "Shop Information",
+    "contact-information": "Contact Information",
+    "location": "Location",
+    "account-security": "Account Security",
+    "shop-name": "Shop Name",
+    "owner-name": "Owner Name",
+    "shop-address": "Shop Address",
+    "zip-code": "Zip Code",
+    "enter-shop-name": "Enter your shop name",
+    "enter-owner-name": "Enter owner's full name",
+    "enter-phone-number": "Enter your phone number",
+    "enter-shop-address": "Enter your shop address",
+    "enter-zip-code": "Enter your zip code",
+    "enter-password": "Enter your password",
+    "enter-confirm-password": "Enter your password again",
+    "registering": "Registering",
+    "register": "Register"
   }
 }
