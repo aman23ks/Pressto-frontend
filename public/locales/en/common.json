@@ -1,0 +1,10 @@
+{
+  "login": {
+    "welcome": "Welcome back! Please login to your account",
+    "customer-login": "Customer Login",
+    "email": "Email",
+    "password": "Password",
+    "no-account": "Don't have an account?",
+    "register": "Sign up"
+  }
+}

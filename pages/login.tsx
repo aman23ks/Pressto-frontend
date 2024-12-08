@@ -3,13 +3,20 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { AuthLayout } from "./AuthLayout";
+import { AuthLayout } from "../app/components/auth/AuthLayout";
 import { AuthProps } from "@/app/types";
 import AuthService from "@/app/services/authService";
 import { useTranslation } from "next-i18next";
+import { GetServerSideProps } from "next";
+import { getI18nProps } from "@/utils/server-side-translation";
+import { useRouter } from "next/router";
 
-export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
+export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
+  return getI18nProps(locale);
+};
+export default function CustomerLogin() {
   const { t } = useTranslation("common");
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -25,8 +32,6 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
         email: formData.email,
         password: formData.password,
       });
-      console.log("-------response-------");
-      console.log(response);
       // Verify user type
       if (response.user.user_type !== "customer") {
         toast.error("Please use customer login");
@@ -34,7 +39,7 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
       }
 
       toast.success("Login successful!");
-      onSuccess();
+      router.push("/");
     } catch (error: any) {
       toast.error(error.message || "Login failed");
       console.error("Login error:", error);
@@ -50,17 +55,19 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
           <div className="p-6">
             <div className="flex items-center mb-4">
               <button
-                onClick={onBack}
+                onClick={() => {
+                  router.push("/");
+                }}
                 className="text-gray-600 hover:text-gray-900"
                 disabled={loading}
               >
                 <ArrowLeft size={20} />
               </button>
               <h2 className="text-2xl font-bold text-gray-900 ml-2">
-                Customer Login
+                {t("login.customer-login")}
               </h2>
             </div>
-            <p className="text-gray-600 mb-6">{t("welcome")}</p>
+            <p className="text-gray-600 mb-6">{t("login.welcome")}</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -68,7 +75,7 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Email
+                  {t("login.email")}
                 </label>
                 <input
                   id="email"
@@ -87,7 +94,7 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
                   htmlFor="password"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Password
+                  {t("login.password")}
                 </label>
                 <input
                   id="password"
@@ -112,13 +119,15 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
           </div>
           <div className="px-6 py-4 bg-gray-50 border-t">
             <p className="text-sm text-gray-600 text-center">
-              Don't have an account?{" "}
+              {t("login.no-account")}{" "}
               <button
-                onClick={onSwitch}
+                onClick={() => {
+                  router.push("/sign-up");
+                }}
                 className="text-blue-600 hover:underline font-medium"
                 disabled={loading}
               >
-                Sign up
+                {t("login.register")}
               </button>
             </p>
           </div>
@@ -126,4 +135,4 @@ export const CustomerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
       </div>
     </AuthLayout>
   );
-};
+}

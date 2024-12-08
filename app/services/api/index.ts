@@ -1,28 +1,28 @@
-import axios, { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
-import { toast } from 'react-hot-toast';
+import axios, { AxiosRequestConfig, InternalAxiosRequestConfig } from "axios";
+import { toast } from "react-hot-toast";
 
 // Ensure API URL exists
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // Request interceptor with proper types
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
     } catch (error) {
-      console.error('Error in request interceptor:', error);
+      console.error("Error in request interceptor:", error);
       return config;
     }
   },
@@ -40,25 +40,25 @@ api.interceptors.response.use(
     // Handle different error scenarios
     if (error.response) {
       // Server responded with an error
-      const message = error.response.data?.error || 'An error occurred';
+      const message = error.response.data?.error || "An error occurred";
       toast.error(message);
 
       // Handle authentication errors
       if (error.response.status === 401) {
         try {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/';
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "/";
         } catch (e) {
-          console.error('Error clearing auth data:', e);
+          console.error("Error clearing auth data:", e);
         }
       }
     } else if (error.request) {
       // Request was made but no response received
-      toast.error('Network error. Please check your connection.');
+      toast.error("Network error. Please check your connection.");
     } else {
       // Something else happened
-      toast.error('An unexpected error occurred');
+      toast.error("An unexpected error occurred");
     }
 
     return Promise.reject(error);
@@ -85,7 +85,7 @@ export const apiService = {
   delete: async <T>(url: string, config?: AxiosRequestConfig) => {
     const response = await api.delete<T>(url, config);
     return response.data;
-  }
+  },
 };
 
 export default api;
