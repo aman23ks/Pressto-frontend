@@ -1,10 +1,20 @@
 {
+  "loading": "Loading",
   "login": {
     "welcome": "Welcome back! Please login to your account",
     "customer-login": "Customer Login",
     "email": "Email",
     "password": "Password",
     "no-account": "Don't have an account?",
-    "register": "Sign up"
+    "register": "Sign up",
+    "shop-owner-login": "Shop Owner Login",
+    "welcome-shop-owner": "Welcome back! Please login to your shop account",
+    "register-shop-owner": "Register your shop"
+  },
+  "index": {
+    "welcome": "Welcome to",
+    "choose-option": "Choose how you want to use the app",
+    "get-clothes-ironed": "I want to get my clothes ironed",
+    "own-ironing-shop": "I own an ironing shop"
   }
 }

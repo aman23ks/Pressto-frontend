@@ -4,7 +4,8 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { AuthLayout } from "../app/components/auth/AuthLayout";
-import { AuthProps } from "@/app/types";
+import { AuthProps, LoginData } from "@/app/types";
+import { useAuth } from "@/app/contexts/AuthContext";
 import AuthService from "@/app/services/authService";
 import { useTranslation } from "next-i18next";
 import { GetServerSideProps } from "next";
@@ -14,10 +15,12 @@ import { useRouter } from "next/router";
 export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
   return getI18nProps(locale);
 };
-export default function CustomerLogin() {
+
+const ShopOwnerLogin = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
+  const { login } = useAuth();
   const { t } = useTranslation("common");
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LoginData>({
     email: "",
     password: "",
   });
@@ -28,25 +31,33 @@ export default function CustomerLogin() {
     setLoading(true);
 
     try {
-      const response = await AuthService.login({
-        email: formData.email,
-        password: formData.password,
-      });
-      // Verify user type
-      if (response.user.user_type !== "customer") {
-        toast.error("Please use customer login");
+      // Call AuthService directly
+      const response = await AuthService.login(formData);
+
+      // Verify it's a shop owner account
+      if (response.user.user_type !== "shopOwner") {
+        toast.error("Please use shop owner login");
         return;
       }
 
+      // Update auth context
+      login(formData.email, formData.password);
+
       toast.success("Login successful!");
-      router.push("/");
+      onSuccess();
     } catch (error: any) {
-      toast.error(error.message || "Login failed");
-      console.error("Login error:", error);
+      const errorMessage =
+        error.response?.data?.error || error.message || "Login failed";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleInputChange =
+    (field: keyof LoginData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    };
 
   return (
     <AuthLayout>
@@ -56,18 +67,20 @@ export default function CustomerLogin() {
             <div className="flex items-center mb-4">
               <button
                 onClick={() => {
-                  router.push("/");
+                  router.push("/index-dummy-window");
                 }}
-                className="text-gray-600 hover:text-gray-900"
                 disabled={loading}
+                className="text-gray-600 hover:text-gray-900"
               >
                 <ArrowLeft size={20} />
               </button>
               <h2 className="text-2xl font-bold text-gray-900 ml-2">
-                {t("login.customer-login")}
+                {t("login.shop-owner-login")}
               </h2>
             </div>
-            <p className="text-gray-600 mb-6">{t("login.welcome")}</p>
+            <p className="text-gray-600 mb-6">
+              {t("login.welcome-shop-owner")}
+            </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
@@ -82,9 +95,7 @@ export default function CustomerLogin() {
                   type="email"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={handleInputChange("email")}
                   disabled={loading}
                   required
                 />
@@ -101,9 +112,7 @@ export default function CustomerLogin() {
                   type="password"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
+                  onChange={handleInputChange("password")}
                   disabled={loading}
                   required
                 />
@@ -111,7 +120,7 @@ export default function CustomerLogin() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:bg-blue-400"
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Logging in..." : "Login"}
               </button>
@@ -121,13 +130,11 @@ export default function CustomerLogin() {
             <p className="text-sm text-gray-600 text-center">
               {t("login.no-account")}{" "}
               <button
-                onClick={() => {
-                  router.push("/sign-up");
-                }}
-                className="text-blue-600 hover:underline font-medium"
+                onClick={onSwitch}
                 disabled={loading}
+                className="text-blue-600 hover:underline font-medium"
               >
-                {t("login.register")}
+                {t("login.register-shop-owner")}
               </button>
             </p>
           </div>
@@ -135,4 +142,6 @@ export default function CustomerLogin() {
       </div>
     </AuthLayout>
   );
-}
+};
+
+export default ShopOwnerLogin;
