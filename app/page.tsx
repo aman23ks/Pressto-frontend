@@ -12,5 +12,7 @@ export default function Home() {
     return <AuthFlow />;
   }
 
-  return user?.user_type === 'customer' ? <CustomerDashboard /> : <ShopDashboard />;
+  return user?.user_type === 'customer' ? 
+    <CustomerDashboard /> : 
+    <ShopDashboard />;
 }
