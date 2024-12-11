@@ -11,13 +11,14 @@ export type ViewType =
   | 'shopOwner-signup' 
   | 'authenticated';
 
-export type OrderStatus = 
-  | 'pending' 
-  | 'received' 
-  | 'inProgress' 
-  | 'ready' 
-  | 'completed' 
-  | 'cancelled';
+  export type OrderStatus = 
+  | 'pending'
+  | 'accepted' 
+  | 'pickedUp'
+  | 'inProgress'
+  | 'completed'
+  | 'delivered'
+  | 'cancelled'
 
 // Props Interfaces
 export interface AuthProps {

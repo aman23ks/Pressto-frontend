@@ -23,8 +23,6 @@ interface DashboardOrder {
   items: OrderItem[];
   status: OrderStatus;
   pickup_date: string;
-  // pickup_time: string;
-  // delivery_time: string;
   total_amount: number;
   pickup_address?: {
     street?: string;
@@ -60,6 +58,18 @@ const TopNav = () => (
   </div>
 );
 
+const STATUS_INFO: Record<OrderStatus, { text: string; color: string }> = {
+  'pending': { text: 'Waiting for shop confirmation', color: 'text-yellow-600' },
+  'accepted': { text: 'Order accepted, arranging pickup', color: 'text-blue-600' },
+  'pickedUp': { text: 'Items picked up', color: 'text-purple-600' },
+  'inProgress': { text: 'Your clothes are being ironed', color: 'text-indigo-600' },
+  'completed': { text: 'Ready for delivery', color: 'text-green-600' },
+  'delivered': { text: 'Order delivered', color: 'text-teal-600' },
+  'cancelled': { text: 'Order cancelled', color: 'text-red-600' }
+};
+
+const ACTIVE_STATUSES: OrderStatus[] = ['pending', 'accepted', 'pickedUp', 'inProgress', 'completed'];
+
 export const CustomerDashboard = () => {
   const [view, setView] = useState<ViewType>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,20 +84,17 @@ export const CustomerDashboard = () => {
       
       const formattedOrders = response.data.map((order: any) => ({
         ...order,
-        // pickup_time: new Date(order.pickup_time).toLocaleString([], {
-        //   weekday: 'short',
-        //   hour: '2-digit',
-        //   minute: '2-digit'
-        // }),
-        // delivery_time: new Date(order.delivery_time).toLocaleString([], {
-        //   weekday: 'short',
-        //   hour: '2-digit',
-        //   minute: '2-digit'
-        // }),
-        created_at: new Date(order.created_at.$date).toLocaleDateString()
+        created_at: order.created_at?.$date 
+          ? new Date(order.created_at.$date).toLocaleDateString()
+          : new Date(order.created_at).toLocaleDateString()
       }));
 
-      setActiveOrders(formattedOrders);
+      // Filter active orders
+      const activeOrders = formattedOrders.filter((order: any) => 
+        ACTIVE_STATUSES.includes(order.status)
+      );
+
+      setActiveOrders(activeOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Failed to fetch orders');
@@ -182,12 +189,15 @@ export const CustomerDashboard = () => {
                   filteredOrders.map(order => (
                     <div 
                       key={order.id} 
-                      className="bg-white border rounded-xl p-6 hover:border-gray-300 transition-colors cursor-pointer"
+                      className="bg-white border rounded-xl p-6 hover:border-gray-300 transition-colors"
                     >
                       <div className="flex justify-between items-start mb-4">
                         <div>
                           <h4 className="font-semibold text-gray-900">{order.shopName}</h4>
                           <p className="text-sm text-gray-600">Order #{order.id}</p>
+                          <p className={`text-sm mt-1 ${STATUS_INFO[order.status].color}`}>
+                            {STATUS_INFO[order.status].text}
+                          </p>
                         </div>
                         <StatusBadge status={order.status} />
                       </div>
@@ -211,18 +221,14 @@ export const CustomerDashboard = () => {
 
                       <div className="border-t pt-4">
                         <div className="grid grid-cols-2 gap-6 text-sm">
-                        <div>
-                          <p className="text-gray-600">Pickup Date</p>
-                          <p className="font-medium">{order.pickup_date}</p>
-                        </div>
-                          {/* <div>
-                            <p className="text-gray-600">Pickup</p>
-                            <p className="font-medium">{order.pickup_time}</p>
+                          <div>
+                            <p className="text-gray-600">Pickup Date</p>
+                            <p className="font-medium">{order.pickup_date}</p>
                           </div>
                           <div>
-                            <p className="text-gray-600">Delivery</p>
-                            <p className="font-medium">{order.delivery_time}</p>
-                          </div> */}
+                            <p className="text-gray-600">Order Date</p>
+                            <p className="font-medium">{order.created_at}</p>
+                          </div>
                         </div>
 
                         {order.pickup_address && (

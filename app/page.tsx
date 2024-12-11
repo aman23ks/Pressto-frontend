@@ -2,7 +2,7 @@
 
 import { useAuth } from './contexts/AuthContext';
 import { CustomerDashboard } from './components/dashboard/customer/CustomerDashboard';
-import { ShopDashboard } from './components/dashboard/shop/ShopDashboard';
+import  ShopDashboard from './components/dashboard/shop/ShopDashboard';
 import { AuthFlow } from './components/auth/AuthFlow';
 
 export default function Home() {
