@@ -286,7 +286,7 @@ export const ShopOrders = ({ onNavigate }: ShopOrdersProps) => {
           
           <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 p-4">
             <div className="flex items-center space-x-3">
-              <div className="text-gray-600 font-medium">Filter by Date</div>
+              <div className="text-gray-600 font-medium">Filter by Pickup Date</div>
               <div className="relative">
                 <input
                   type="date"
