@@ -19,18 +19,20 @@ import {
  ArrowLeft
 } from 'lucide-react';
 import { ServiceManagement } from './ShopServiceManagement';
+import TermsPage from '../customer/TermsPage';
 
 interface SettingsProps {
  onNavigate: (view: 'dashboard' | 'orders' | 'settings') => void;
 }
 
-type SettingSection = 'main' | 'stats' | 'profile' | 'business-hours' | 'location' | 'services';
+type SettingSection = 'main' | 'stats' | 'profile' | 'business-hours' | 'location' | 'services' | 'about';
 
 export const ShopSettings = ({ onNavigate }: SettingsProps) => {
  const [notifications, setNotifications] = useState(true);
  const { user, logout } = useAuth();
  const [isLoggingOut, setIsLoggingOut] = useState(false);
  const [currentSection, setCurrentSection] = useState<SettingSection>('main');
+//  const [showTerms, setShowTerms] = useState(false);
 
  const handleLogout = async () => {
    try {
@@ -122,12 +124,23 @@ export const ShopSettings = ({ onNavigate }: SettingsProps) => {
      description: 'Get help or contact support',
      icon: HelpCircle,
      action: () => console.log('Navigate to help')
-   }
+   },
+   {
+    title: 'About',
+    description: 'Terms of service and privacy policy',
+    icon: HelpCircle,
+    action: () => setCurrentSection('about')
+  }
  ];
 
  if (currentSection === 'services') {
     return <ServiceManagement onBack={() => setCurrentSection('main')} />;
  }
+
+ if (currentSection === 'about') {
+  return <TermsPage onBack={() => setCurrentSection('main')} />;
+}
+
 
  return (
    <div className="min-h-screen bg-gray-50">

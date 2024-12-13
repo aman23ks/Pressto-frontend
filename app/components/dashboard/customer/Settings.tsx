@@ -16,6 +16,7 @@ import {
  LogOut,
  Map
 } from 'lucide-react';
+import { TermsPage } from './TermsPage';
 
 interface SettingsProps {
  onNavigate: (view: 'dashboard' | 'orders' | 'settings') => void;
@@ -25,6 +26,7 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
  const [notifications, setNotifications] = useState(true);
  const { user, logout } = useAuth();
  const [isLoggingOut, setIsLoggingOut] = useState(false);
+ const [showTerms, setShowTerms] = useState(false);
 
  const handleLogout = async () => {
    try {
@@ -76,9 +78,13 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
      title: 'About',
      description: 'Terms of service and privacy policy',
      icon: HelpCircle,
-     action: () => console.log('Navigate to about')
+     action: () => setShowTerms(true)
    }
  ];
+
+  if (showTerms) {
+    return <TermsPage onBack={() => setShowTerms(false)} />;
+  }
 
  return (
    <div className="min-h-screen bg-white">
