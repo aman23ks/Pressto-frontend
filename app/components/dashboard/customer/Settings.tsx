@@ -17,6 +17,7 @@ import {
  Map
 } from 'lucide-react';
 import { TermsPage } from './TermsPage';
+import HelpSupport from './HelpSupport';
 
 interface SettingsProps {
  onNavigate: (view: 'dashboard' | 'orders' | 'settings') => void;
@@ -27,6 +28,7 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
  const { user, logout } = useAuth();
  const [isLoggingOut, setIsLoggingOut] = useState(false);
  const [showTerms, setShowTerms] = useState(false);
+ const [showHelpSupport, setShowHelpSupport] = useState(false);
 
  const handleLogout = async () => {
    try {
@@ -72,7 +74,7 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
      title: 'Contact Us',
      description: 'Get help or send feedback',
      icon: Phone,
-     action: () => console.log('Navigate to contact')
+     action: () => setShowHelpSupport(true)
    },
    {
      title: 'About',
@@ -84,6 +86,19 @@ export const Settings: React.FC<SettingsProps> = ({ onNavigate }) => {
 
   if (showTerms) {
     return <TermsPage onBack={() => setShowTerms(false)} />;
+  }
+
+  if (showHelpSupport) {
+    return (
+      <HelpSupport 
+        onBack={() => setShowHelpSupport(false)}
+        userDetails={{
+          name: user?.name ?? '',
+          email: user?.email ?? '',
+          phone: user?.phone ?? ''
+        }}
+      />
+    );
   }
 
  return (

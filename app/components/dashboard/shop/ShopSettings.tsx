@@ -20,12 +20,13 @@ import {
 } from 'lucide-react';
 import { ServiceManagement } from './ShopServiceManagement';
 import TermsPage from '../customer/TermsPage';
+import HelpSupport from '../customer/HelpSupport';
 
 interface SettingsProps {
  onNavigate: (view: 'dashboard' | 'orders' | 'settings') => void;
 }
 
-type SettingSection = 'main' | 'stats' | 'profile' | 'business-hours' | 'location' | 'services' | 'about';
+type SettingSection = 'main' | 'stats' | 'profile' | 'business-hours' | 'location' | 'services' | 'about' | 'support';
 
 export const ShopSettings = ({ onNavigate }: SettingsProps) => {
  const [notifications, setNotifications] = useState(true);
@@ -123,7 +124,7 @@ export const ShopSettings = ({ onNavigate }: SettingsProps) => {
      title: 'Help & Support',
      description: 'Get help or contact support',
      icon: HelpCircle,
-     action: () => console.log('Navigate to help')
+     action: () => setCurrentSection('support')
    },
    {
     title: 'About',
@@ -141,6 +142,18 @@ export const ShopSettings = ({ onNavigate }: SettingsProps) => {
   return <TermsPage onBack={() => setCurrentSection('main')} />;
 }
 
+if (currentSection === 'support') {
+  return (
+    <HelpSupport 
+      onBack={() => setCurrentSection('main')}
+      userDetails={{
+        name: user?.name ?? '',
+        email: user?.email ?? '',
+        phone: user?.phone ?? ''
+      }}
+    />
+  );
+}
 
  return (
    <div className="min-h-screen bg-gray-50">
