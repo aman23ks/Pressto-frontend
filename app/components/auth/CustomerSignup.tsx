@@ -24,6 +24,10 @@ export const CustomerSignup = ({ onBack, onSwitch, onSuccess }: AuthProps) => {
       return;
     }
 
+    if (formData.password.length < 8 && formData.confirmPassword.length < 8){
+      toast.error('Passwords need to be atleast 8 characters')
+    }
+
     setLoading(true);
     try {
       await AuthService.registerCustomer({
