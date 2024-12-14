@@ -23,7 +23,7 @@ export const AuthFlow = () => {
 
   if (view === 'role-select') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex flex-col items-center justify-center py-20">
         <div className="max-w-md w-full px-6 py-8 bg-white rounded-lg shadow-lg">
           <div className="text-center mb-8">
             <Store className="h-16 w-16 text-blue-600 mx-auto mb-4" />
@@ -44,6 +44,19 @@ export const AuthFlow = () => {
             >
               I own an ironing shop
             </button>
+          </div>
+        </div>
+
+        {/* Video Section */}
+        <div className="mt-12 max-w-6xl w-full px-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Product Demo</h2>
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+            <iframe
+              src="https://drive.google.com/file/d/14b7gVmlkvcC_vN7BvzEK1fyY2pkGLqSa/preview"
+              className="w-full h-[600px]"
+              allowFullScreen
+              title="Pressto Product Tour"
+            ></iframe>
           </div>
         </div>
       </div>
